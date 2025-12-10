@@ -9,4 +9,8 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, Long> 
     UserAccount findByUsername(String username);
 
     UserAccount findByEmailAndIsActive(String email, Boolean isActive);
+
+    UserAccount findByResetToken(String resetToken);
+
+    UserAccount findByRefreshToken(String refreshToken);
 }

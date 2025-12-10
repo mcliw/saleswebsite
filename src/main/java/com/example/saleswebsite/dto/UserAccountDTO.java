@@ -16,9 +16,11 @@ public class UserAccountDTO {
     private String email;
     private String phone;
     private Boolean isActive;
+    private String role;
 
     public static UserAccountDTO fromEntity(UserAccount entity) {
-        if (entity == null) return null;
+        if (entity == null)
+            return null;
         UserAccountDTO dto = new UserAccountDTO();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
@@ -26,6 +28,7 @@ public class UserAccountDTO {
         dto.setEmail(entity.getEmail());
         dto.setPhone(entity.getPhone());
         dto.setIsActive(entity.getIsActive());
+        dto.setRole(entity.getRole());
         return dto;
     }
 
@@ -37,6 +40,7 @@ public class UserAccountDTO {
         e.setEmail(this.email);
         e.setPhone(this.phone);
         e.setIsActive(this.isActive);
+        e.setRole(this.role);
         return e;
     }
 }

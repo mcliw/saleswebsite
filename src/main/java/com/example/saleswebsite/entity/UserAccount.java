@@ -18,6 +18,13 @@ public class UserAccount {
     private String username;
     private String email;
     private String phone;
+    private String password;
+
+    private String role;
+
+    private String refreshToken;
+
+    private String resetToken;
 
     @Column(name = "is_active")
     private Boolean isActive;
