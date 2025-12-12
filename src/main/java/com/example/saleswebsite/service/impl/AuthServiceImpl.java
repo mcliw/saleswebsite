@@ -18,12 +18,11 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserAccountRepository repository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtil jwtUtil;
+    // JwtUtil is accessed through the singleton accessor JwtUtil.getInstance()
 
-    public AuthServiceImpl(UserAccountRepository repository, PasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
+    public AuthServiceImpl(UserAccountRepository repository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
     }
 
     @Override
@@ -50,8 +49,8 @@ public class AuthServiceImpl implements AuthService {
             return null;
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
             return null;
-        String access = jwtUtil.generateAccessToken(user.getUsername(), user.getRole());
-        String refresh = jwtUtil.generateRefreshToken(user.getUsername());
+        String access = JwtUtil.getInstance().generateAccessToken(user.getUsername(), user.getRole());
+        String refresh = JwtUtil.getInstance().generateRefreshToken(user.getUsername());
         user.setRefreshToken(refresh);
         repository.save(user);
         return new AuthResponse(UserAccountDTO.fromEntity(user), access, refresh);
@@ -62,13 +61,13 @@ public class AuthServiceImpl implements AuthService {
         if (refreshToken == null)
             return null;
         try {
-            String username = jwtUtil.getUsernameFromToken(refreshToken);
+            String username = JwtUtil.getInstance().getUsernameFromToken(refreshToken);
             UserAccount user = repository.findByUsername(username);
             if (user == null)
                 return null;
             if (refreshToken.equals(user.getRefreshToken())) {
-                String access = jwtUtil.generateAccessToken(user.getUsername(), user.getRole());
-                String newRefresh = jwtUtil.generateRefreshToken(user.getUsername());
+                String access = JwtUtil.getInstance().generateAccessToken(user.getUsername(), user.getRole());
+                String newRefresh = JwtUtil.getInstance().generateRefreshToken(user.getUsername());
                 user.setRefreshToken(newRefresh);
                 repository.save(user);
                 return new AuthResponse(UserAccountDTO.fromEntity(user), access, newRefresh);

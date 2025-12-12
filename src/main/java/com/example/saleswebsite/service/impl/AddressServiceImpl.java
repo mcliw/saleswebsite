@@ -30,7 +30,15 @@ public class AddressServiceImpl implements AddressService {
 
     @Override
     public AddressDTO create(AddressDTO dto) {
-        Address e = dto.toEntity();
+        AddressDTO toSave = AddressDTO.builder()
+                .userId(dto.getUserId())
+                .city(dto.getCity())
+                .district(dto.getDistrict())
+                .ward(dto.getWard())
+                .streetAddress(dto.getStreetAddress())
+                .isDefault(dto.getIsDefault() == null ? false : dto.getIsDefault())
+                .build();
+        Address e = toSave.toEntity();
         Address saved = addressRepository.save(e);
         return AddressDTO.fromEntity(saved);
     }
@@ -38,7 +46,15 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressDTO update(Long id, AddressDTO dto) {
         return addressRepository.findById(id).map(existing -> {
-            Address updated = dto.toEntity();
+            AddressDTO toSave = AddressDTO.builder()
+                    .userId(dto.getUserId())
+                    .city(dto.getCity())
+                    .district(dto.getDistrict())
+                    .ward(dto.getWard())
+                    .streetAddress(dto.getStreetAddress())
+                    .isDefault(dto.getIsDefault() == null ? existing.getIsDefault() : dto.getIsDefault())
+                    .build();
+            Address updated = toSave.toEntity();
             updated.setId(id);
             Address saved = addressRepository.save(updated);
             return AddressDTO.fromEntity(saved);

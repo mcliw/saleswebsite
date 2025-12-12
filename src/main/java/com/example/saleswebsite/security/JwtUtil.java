@@ -6,6 +6,8 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import com.auth0.jwt.interfaces.JWTVerifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import com.example.saleswebsite.config.SpringContextHolder;
+import jakarta.annotation.PostConstruct;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -25,6 +27,27 @@ public class JwtUtil {
 
     private Algorithm getAlgorithm() {
         return Algorithm.HMAC256(secret.getBytes());
+    }
+
+    private static volatile JwtUtil instance;
+
+    @PostConstruct
+    private void init() {
+        instance = this;
+    }
+
+    public static JwtUtil getInstance() {
+        if (instance == null)
+            if (instance == null) {
+                // try fallback via application context
+                if (SpringContextHolder.getContext() != null) {
+                    instance = SpringContextHolder.getContext().getBean(JwtUtil.class);
+                }
+                if (instance == null)
+                    throw new IllegalStateException(
+                            "JwtUtil is not initialized yet. Ensure Spring has initialized the context.");
+            }
+        return instance;
     }
 
     public String generateAccessToken(String username, String role) {
