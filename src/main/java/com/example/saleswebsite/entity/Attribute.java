@@ -15,7 +15,9 @@ public class Attribute {
     private Long id;
 
     private String name;
-    private String unit;
+
+    @Column(name = "unit_id")
+    private Long unitId;
 
     @Column(name = "data_type")
     private String dataType;

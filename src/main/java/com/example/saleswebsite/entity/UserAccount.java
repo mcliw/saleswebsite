@@ -8,6 +8,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "user_account")
+@Deprecated
 public class UserAccount {
 
     @Id

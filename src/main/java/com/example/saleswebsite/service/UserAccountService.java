@@ -1,18 +1,18 @@
 package com.example.saleswebsite.service;
 
-import com.example.saleswebsite.dto.UserAccountDTO;
+import com.example.saleswebsite.dto.UserDTO;
 import java.util.List;
 
 public interface UserAccountService {
-    List<UserAccountDTO> findAll();
+    List<UserDTO> findAll();
 
-    UserAccountDTO findById(Long id);
+    UserDTO findById(Long id);
 
-    UserAccountDTO create(UserAccountDTO dto);
+    UserDTO create(UserDTO dto);
 
-    UserAccountDTO update(Long id, UserAccountDTO dto);
+    UserDTO update(Long id, UserDTO dto);
 
     void delete(Long id);
 
-    UserAccountDTO findByUsername(String username);
+    UserDTO findByUsername(String username);
 }

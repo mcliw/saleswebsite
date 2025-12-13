@@ -1,18 +1,19 @@
 package com.example.saleswebsite.service;
 
-import com.example.saleswebsite.dto.ProductDTO;
+import com.example.saleswebsite.dto.product.ProductCreateRequest;
+import com.example.saleswebsite.dto.product.ProductResponse;
 import java.util.List;
 
 public interface ProductService {
-    List<ProductDTO> findAll();
+    List<ProductResponse> findAll();
 
-    ProductDTO findById(Long id);
+    ProductResponse findById(Long id);
 
-    ProductDTO create(ProductDTO dto);
+    ProductResponse create(ProductCreateRequest request);
 
-    ProductDTO update(Long id, ProductDTO dto);
+    ProductResponse update(Long id, ProductCreateRequest request);
 
     void delete(Long id);
 
-    List<ProductDTO> findByName(String name);
+    List<ProductResponse> findByName(String name);
 }

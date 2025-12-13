@@ -1,6 +1,6 @@
 package com.example.saleswebsite.controller;
 
-import com.example.saleswebsite.dto.UserAccountDTO;
+import com.example.saleswebsite.dto.UserDTO;
 import com.example.saleswebsite.dto.auth.*;
 import com.example.saleswebsite.service.AuthService;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +19,8 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<UserAccountDTO> register(@RequestBody RegisterRequest req) {
-        UserAccountDTO dto = authService.register(req);
+    public ResponseEntity<UserDTO> register(@RequestBody RegisterRequest req) {
+        UserDTO dto = authService.register(req);
         if (dto == null)
             return ResponseEntity.badRequest().build();
         return ResponseEntity.ok(dto);
@@ -43,11 +43,11 @@ public class AuthController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserAccountDTO> me() {
+    public ResponseEntity<UserDTO> me() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || auth.getName() == null)
             return ResponseEntity.status(401).build();
-        UserAccountDTO dto = authService.me(auth.getName());
+        UserDTO dto = authService.me(auth.getName());
         return ResponseEntity.ok(dto);
     }
 

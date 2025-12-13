@@ -1,6 +1,6 @@
 package com.example.saleswebsite.controller;
 
-import com.example.saleswebsite.dto.UserAccountDTO;
+import com.example.saleswebsite.dto.UserDTO;
 import com.example.saleswebsite.service.UserAccountService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,26 +18,26 @@ public class UserAccountController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserAccountDTO>> getAll() {
+    public ResponseEntity<List<UserDTO>> getAll() {
         return ResponseEntity.ok(userAccountService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserAccountDTO> getById(@PathVariable Long id) {
-        UserAccountDTO dto = userAccountService.findById(id);
+    public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
+        UserDTO dto = userAccountService.findById(id);
         if (dto == null)
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dto);
     }
 
     @PostMapping
-    public ResponseEntity<UserAccountDTO> create(@RequestBody UserAccountDTO dto) {
+    public ResponseEntity<UserDTO> create(@RequestBody UserDTO dto) {
         return ResponseEntity.ok(userAccountService.create(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserAccountDTO> update(@PathVariable Long id, @RequestBody UserAccountDTO dto) {
-        UserAccountDTO updated = userAccountService.update(id, dto);
+    public ResponseEntity<UserDTO> update(@PathVariable Long id, @RequestBody UserDTO dto) {
+        UserDTO updated = userAccountService.update(id, dto);
         if (updated == null)
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(updated);
@@ -50,8 +50,8 @@ public class UserAccountController {
     }
 
     @GetMapping("/by-username")
-    public ResponseEntity<UserAccountDTO> findByUsername(@RequestParam String username) {
-        UserAccountDTO dto = userAccountService.findByUsername(username);
+    public ResponseEntity<UserDTO> findByUsername(@RequestParam String username) {
+        UserDTO dto = userAccountService.findByUsername(username);
         if (dto == null)
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dto);

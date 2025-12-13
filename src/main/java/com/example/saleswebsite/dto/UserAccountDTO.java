@@ -1,6 +1,6 @@
 package com.example.saleswebsite.dto;
 
-import com.example.saleswebsite.entity.UserAccount;
+import com.example.saleswebsite.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Deprecated
 public class UserAccountDTO {
 
     private Long id;
@@ -16,9 +17,9 @@ public class UserAccountDTO {
     private String email;
     private String phone;
     private Boolean isActive;
-    private String role;
+    private Long roleId;
 
-    public static UserAccountDTO fromEntity(UserAccount entity) {
+    public static UserAccountDTO fromEntity(User entity) {
         if (entity == null)
             return null;
         UserAccountDTO dto = new UserAccountDTO();
@@ -28,19 +29,19 @@ public class UserAccountDTO {
         dto.setEmail(entity.getEmail());
         dto.setPhone(entity.getPhone());
         dto.setIsActive(entity.getIsActive());
-        dto.setRole(entity.getRole());
+        dto.setRoleId(entity.getRoleId());
         return dto;
     }
 
-    public UserAccount toEntity() {
-        UserAccount e = new UserAccount();
+    public User toEntity() {
+        User e = new User();
         e.setId(this.id);
         e.setName(this.name);
         e.setUsername(this.username);
         e.setEmail(this.email);
         e.setPhone(this.phone);
         e.setIsActive(this.isActive);
-        e.setRole(this.role);
+        e.setRoleId(this.roleId);
         return e;
     }
 }

@@ -1,58 +1,69 @@
 package com.example.saleswebsite.service.impl;
 
-import com.example.saleswebsite.dto.UserAccountDTO;
-import com.example.saleswebsite.entity.UserAccount;
-import com.example.saleswebsite.repository.UserAccountRepository;
+import com.example.saleswebsite.dto.UserDTO;
+import com.example.saleswebsite.entity.User;
+import com.example.saleswebsite.repository.UserRepository;
 import com.example.saleswebsite.service.UserAccountService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import com.example.saleswebsite.exception.ApiException;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 public class UserAccountServiceImpl implements UserAccountService {
+    private static final Logger log = LoggerFactory.getLogger(UserAccountServiceImpl.class);
 
-    private final UserAccountRepository userAccountRepository;
+    private final UserRepository userAccountRepository;
 
-    public UserAccountServiceImpl(UserAccountRepository userAccountRepository) {
+    public UserAccountServiceImpl(UserRepository userAccountRepository) {
         this.userAccountRepository = userAccountRepository;
     }
 
     @Override
-    public List<UserAccountDTO> findAll() {
-        return userAccountRepository.findAll().stream().map(UserAccountDTO::fromEntity).collect(Collectors.toList());
+    public List<UserDTO> findAll() {
+        return userAccountRepository.findAll().stream().map(UserDTO::fromEntity).collect(Collectors.toList());
     }
 
     @Override
-    public UserAccountDTO findById(Long id) {
-        return userAccountRepository.findById(id).map(UserAccountDTO::fromEntity).orElse(null);
+    public UserDTO findById(Long id) {
+        return userAccountRepository.findById(id).map(UserDTO::fromEntity).orElse(null);
     }
 
     @Override
-    public UserAccountDTO create(UserAccountDTO dto) {
-        UserAccount e = dto.toEntity();
-        UserAccount saved = userAccountRepository.save(e);
-        return UserAccountDTO.fromEntity(saved);
+    @Transactional
+    public UserDTO create(UserDTO dto) {
+        log.info("Creating user {}", dto.getUsername());
+        User e = dto.toEntity();
+        User saved = userAccountRepository.save(e);
+        return UserDTO.fromEntity(saved);
     }
 
     @Override
-    public UserAccountDTO update(Long id, UserAccountDTO dto) {
+    @Transactional
+    public UserDTO update(Long id, UserDTO dto) {
         return userAccountRepository.findById(id).map(existing -> {
-            UserAccount updated = dto.toEntity();
+            log.info("Updating user {}", id);
+            User updated = dto.toEntity();
             updated.setId(id);
-            UserAccount saved = userAccountRepository.save(updated);
-            return UserAccountDTO.fromEntity(saved);
-        }).orElse(null);
+            User saved = userAccountRepository.save(updated);
+            return UserDTO.fromEntity(saved);
+        }).orElseThrow(() -> new ApiException("UserAccount not found"));
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
+        log.info("Deleting user {}", id);
         userAccountRepository.deleteById(id);
     }
 
     @Override
-    public UserAccountDTO findByUsername(String username) {
+    public UserDTO findByUsername(String username) {
         return userAccountRepository.findByUsername(username) == null ? null
-                : UserAccountDTO.fromEntity(userAccountRepository.findByUsername(username));
+                : UserDTO.fromEntity(userAccountRepository.findByUsername(username));
     }
 }

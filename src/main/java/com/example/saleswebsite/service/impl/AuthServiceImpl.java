@@ -1,11 +1,13 @@
 package com.example.saleswebsite.service.impl;
 
-import com.example.saleswebsite.dto.UserAccountDTO;
+import com.example.saleswebsite.dto.UserDTO;
 import com.example.saleswebsite.dto.auth.AuthResponse;
 import com.example.saleswebsite.dto.auth.LoginRequest;
 import com.example.saleswebsite.dto.auth.RegisterRequest;
-import com.example.saleswebsite.entity.UserAccount;
-import com.example.saleswebsite.repository.UserAccountRepository;
+import com.example.saleswebsite.entity.User;
+import com.example.saleswebsite.entity.Role;
+import com.example.saleswebsite.repository.UserRepository;
+import com.example.saleswebsite.repository.RoleRepository;
 import com.example.saleswebsite.security.JwtUtil;
 import com.example.saleswebsite.service.AuthService;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,44 +18,58 @@ import java.util.UUID;
 @Service
 public class AuthServiceImpl implements AuthService {
 
-    private final UserAccountRepository repository;
+    private final UserRepository repository;
+    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     // JwtUtil is accessed through the singleton accessor JwtUtil.getInstance()
 
-    public AuthServiceImpl(UserAccountRepository repository, PasswordEncoder passwordEncoder) {
+    public AuthServiceImpl(UserRepository repository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.repository = repository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
-    public UserAccountDTO register(RegisterRequest request) {
-        UserAccount existing = repository.findByUsername(request.getUsername());
+    public UserDTO register(RegisterRequest request) {
+        User existing = repository.findByUsername(request.getUsername());
         if (existing != null)
             return null;
-        UserAccount u = new UserAccount();
+        User u = new User();
         u.setUsername(request.getUsername());
         u.setName(request.getName());
         u.setEmail(request.getEmail());
         u.setPhone(request.getPhone());
         u.setIsActive(true);
-        u.setRole(request.getRole() == null ? "USER" : request.getRole());
+        // resolve role by name
+        String rname = request.getRole() == null ? "User" : request.getRole();
+        Role roleEntity = roleRepository.findByRoleName(rname);
+        if (roleEntity != null) {
+            u.setRoleId(roleEntity.getId());
+        }
         u.setPassword(passwordEncoder.encode(request.getPassword()));
-        UserAccount saved = repository.save(u);
-        return UserAccountDTO.fromEntity(saved);
+        User saved = repository.save(u);
+        return UserDTO.fromEntity(saved);
     }
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        UserAccount user = repository.findByUsername(request.getUsername());
+        User user = repository.findByUsername(request.getUsername());
         if (user == null)
             return null;
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword()))
             return null;
-        String access = JwtUtil.getInstance().generateAccessToken(user.getUsername(), user.getRole());
+        String roleName = "User";
+        if (user.getRoleId() != null) {
+            var r = roleRepository.findById(user.getRoleId());
+            if (r.isPresent() && r.get().getRoleName() != null) {
+                roleName = r.get().getRoleName();
+            }
+        }
+        String access = JwtUtil.getInstance().generateAccessToken(user.getUsername(), roleName);
         String refresh = JwtUtil.getInstance().generateRefreshToken(user.getUsername());
         user.setRefreshToken(refresh);
         repository.save(user);
-        return new AuthResponse(UserAccountDTO.fromEntity(user), access, refresh);
+        return new AuthResponse(UserDTO.fromEntity(user), access, refresh);
     }
 
     @Override
@@ -62,15 +78,22 @@ public class AuthServiceImpl implements AuthService {
             return null;
         try {
             String username = JwtUtil.getInstance().getUsernameFromToken(refreshToken);
-            UserAccount user = repository.findByUsername(username);
+            User user = repository.findByUsername(username);
             if (user == null)
                 return null;
             if (refreshToken.equals(user.getRefreshToken())) {
-                String access = JwtUtil.getInstance().generateAccessToken(user.getUsername(), user.getRole());
+                String roleName = "User";
+                if (user.getRoleId() != null) {
+                    var r = roleRepository.findById(user.getRoleId());
+                    if (r.isPresent() && r.get().getRoleName() != null) {
+                        roleName = r.get().getRoleName();
+                    }
+                }
+                String access = JwtUtil.getInstance().generateAccessToken(user.getUsername(), roleName);
                 String newRefresh = JwtUtil.getInstance().generateRefreshToken(user.getUsername());
                 user.setRefreshToken(newRefresh);
                 repository.save(user);
-                return new AuthResponse(UserAccountDTO.fromEntity(user), access, newRefresh);
+                return new AuthResponse(UserDTO.fromEntity(user), access, newRefresh);
             }
         } catch (Exception ex) {
             return null;
@@ -79,14 +102,14 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public UserAccountDTO me(String username) {
-        UserAccount u = repository.findByUsername(username);
-        return UserAccountDTO.fromEntity(u);
+    public UserDTO me(String username) {
+        User u = repository.findByUsername(username);
+        return UserDTO.fromEntity(u);
     }
 
     @Override
     public void initiateForgotPassword(String email) {
-        UserAccount u = repository.findByEmailAndIsActive(email, true);
+        User u = repository.findByEmailAndIsActive(email, true);
         if (u == null)
             return;
         String token = UUID.randomUUID().toString();
@@ -97,7 +120,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean resetPassword(String resetToken, String newPassword) {
-        UserAccount u = repository.findByResetToken(resetToken);
+        User u = repository.findByResetToken(resetToken);
         if (u == null)
             return false;
         u.setPassword(passwordEncoder.encode(newPassword));
@@ -108,7 +131,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public boolean changePassword(String username, String oldPassword, String newPassword) {
-        UserAccount u = repository.findByUsername(username);
+        User u = repository.findByUsername(username);
         if (u == null)
             return false;
         if (!passwordEncoder.matches(oldPassword, u.getPassword()))

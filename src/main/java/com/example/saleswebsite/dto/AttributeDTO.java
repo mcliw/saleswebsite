@@ -12,7 +12,7 @@ public class AttributeDTO {
 
     private Long id;
     private String name;
-    private String unit;
+    private Long unitId;
     private String dataType;
     private String inputType;
 
@@ -22,7 +22,7 @@ public class AttributeDTO {
         AttributeDTO dto = new AttributeDTO();
         dto.setId(entity.getId());
         dto.setName(entity.getName());
-        dto.setUnit(entity.getUnit());
+        dto.setUnitId(entity.getUnitId());
         dto.setDataType(entity.getDataType());
         dto.setInputType(entity.getInputType());
         return dto;
@@ -32,7 +32,7 @@ public class AttributeDTO {
         Attribute e = new Attribute();
         e.setId(this.id);
         e.setName(this.name);
-        e.setUnit(this.unit);
+        e.setUnitId(this.unitId);
         e.setDataType(this.dataType);
         e.setInputType(this.inputType);
         return e;

@@ -11,24 +11,21 @@ import lombok.NoArgsConstructor;
 public class RoleDTO {
 
     private Long id;
-    private Long userId;
-    private String roleName;
+    private String name;
 
     public static RoleDTO fromEntity(Role entity) {
         if (entity == null)
             return null;
         RoleDTO dto = new RoleDTO();
         dto.setId(entity.getId());
-        dto.setUserId(entity.getUserId());
-        dto.setRoleName(entity.getRoleName());
+        dto.setName(entity.getRoleName());
         return dto;
     }
 
     public Role toEntity() {
         Role e = new Role();
         e.setId(this.id);
-        e.setUserId(this.userId);
-        e.setRoleName(this.roleName);
+        e.setRoleName(this.name);
         return e;
     }
 }
